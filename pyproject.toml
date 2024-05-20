@@ -4,12 +4,17 @@ version = "0.1.0"
 description = ""
 authors = ["Bryan Ngo <bryanngo@berkeley.edu>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = "^3.11"
 cvxpy = "^1.3.2"
 pandas = "^2.1.1"
 
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.0"
+pandas-stubs = "^2.2.2.240514"
 
 [build-system]
 requires = ["poetry-core"]

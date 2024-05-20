@@ -1,4 +1,39 @@
-# ~~Anirban's~~ Bryan's Notes (Spring 2023 ~~VP~~ CSec)
+# Installation
+
+## Poetry
+
+1. Download [Poetry](https://python-poetry.org/docs/#installation).
+2. Run the following commands in this folder:
+    ```bash
+    poetry update
+    poetry shell
+    ```
+
+## `pip`
+
+Run the following commands (appropriate for your shell):
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+   
+# Usage
+
+1. Export the Google Form responses as a CSV to this folder.
+2. Edit `parse_prefs.py` to have the correct number of candidates per committee in the `totals` variable, leaving the `""`.
+   Make sure the sum is _exactly_ equal to the number of candidates, otherwise you will get cryptic errors that are hard to figure out.
+3. Run
+   ```bash
+   python parse_prefs.py <input file> <output file>
+   ```
+   This script transforms the responses into a CSV of the form that the solver can use.
+4. Run the solver:
+   ```bash
+   python scheduling_solution.py <output of last script> <output file>
+   ```
+
+<!--# ~~Anirban's~~ Bryan's Notes (Spring 2023 ~~VP~~ CSec)
 
 I've deleted the `matching.py` script.
 The new method to use this solver is:
@@ -15,7 +50,6 @@ The new method to use this solver is:
    poetry run python parse_prefs.py <input file> <output file>
    ```
    This script transforms the responses into a CSV of the form that the solver can use.
-
 6. Run the solver:
    ```python
    poetry run python scheduling_solution.py <output of last script> <output file>
@@ -71,3 +105,4 @@ freely to the best preferred slot. In this case, this script can be run
 with --bound lower, specifying that the counts in the CSV are a 
 lower bound.
 
+-->

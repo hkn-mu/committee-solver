@@ -1,3 +1,5 @@
+"""Scheduling solver."""
+
 import argparse
 import csv
 import logging
@@ -14,11 +16,13 @@ WEIGHTS = {1: 1, 2: 4, 3: 100, 4: 10000}
 WEIGHTS_TO_PREF = {1: 1, 4: 2, 100: 3, 10000: 4}
 
 
-def make_unique(lst: list[str]) -> list[str]:
-    """This function takes a list of str items, and checks the list for
-    non-unique entries. If any non-unique entries are found, it replaces
-     them by appending a _1, _2 under them to make them all unique."""
-    counts = defaultdict(int)
+def make_unique(lst: pd.Series) -> list[str]:
+    """
+    Take a list of str items, and checks the list for non-unique entries.
+    If any non-unique entries are found, it replaces them by appending
+    a _1, _2 under them to make them all unique.
+    """
+    counts: dict[str, int] = defaultdict(int)
     for item in lst:
         counts[item] += 1
 
@@ -39,6 +43,7 @@ def make_unique(lst: list[str]) -> list[str]:
 def parse_csv(
     filename: str, no_custom_counts: bool = False, weights: dict[int, int] = WEIGHTS
 ) -> tuple[dict, dict, dict, dict]:
+    """Take custom CSV format and extract weights and preferences."""
     # Process provided CSV.
     preferences_by_assignment = defaultdict(list)
     preferences_by_persons = defaultdict(list)
@@ -91,6 +96,7 @@ def parse_csv(
 
 
 def str_bounds_expr(left, bounds: str, right) -> bool:
+    """Parse bounds expression as boolean comparison."""
     if bounds == "equal":
         return left == right
     if bounds == "lower":
@@ -101,6 +107,7 @@ def str_bounds_expr(left, bounds: str, right) -> bool:
 
 
 def create_ilp(preferences_by_persons, counts_by_persons, counts_by_assignment, bounds):
+    """Convert preferences and weights into linear programming problem."""
     cost = 0
     variables_by_persons = defaultdict(list)
     constraints_by_persons = defaultdict(int)
@@ -144,7 +151,7 @@ def create_ilp(preferences_by_persons, counts_by_persons, counts_by_assignment, 
 
 
 def solve_ilp(cost, persons_constraint, assignments_constraint) -> None:
-    # Perform CVX Magic.
+    """Perform CVX Magic."""
     obj = cvx.Minimize(cost)
     prob = cvx.Problem(obj, persons_constraint + assignments_constraint)
     logging.debug("Using CVX to solve")
@@ -155,9 +162,9 @@ def solve_ilp(cost, persons_constraint, assignments_constraint) -> None:
         logging.warning(f"Problem status is not optimal but is instead {prob.status}")
 
 
-def set_final_assignments(variables_by_persons):
+def set_final_assignments(variables_by_persons: dict[str, list]) -> dict[str, list]:
+    """Figure out the final assignments by checking which variables were 1."""
     final_assignments = defaultdict(list)
-    # Figure out the final assignments by checking which variables were 1.
     for person, items in variables_by_persons.items():
         for preference, assignment, variable in items:
             if math.isclose(variable.value[0], 1):
@@ -165,8 +172,8 @@ def set_final_assignments(variables_by_persons):
     return final_assignments
 
 
-def write_final_assignments(final_assignments, output_file):
-    # Write out the final assignments
+def write_final_assignments(final_assignments, output_file) -> None:
+    """Write out the final assignments."""
     with open(output_file, "w+") as csvfile:
         logging.debug("Writing to output file.")
         csvwriter = csv.writer(csvfile)
@@ -179,7 +186,8 @@ def write_final_assignments(final_assignments, output_file):
                 )
 
 
-def main():
+def main() -> None:
+    """Solve the scheduling problem."""
     logging.basicConfig(filename=LOGGING_FILENAME, level=logging.DEBUG)
     parser = argparse.ArgumentParser(
         description="""

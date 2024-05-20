@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+"""Convert Google Form to a format that can be read by the scheduling solver."""
+
 import argparse
 
 import pandas as pd
 
 
 def main() -> None:
+    """Drive preference parser."""
     parser = argparse.ArgumentParser(
         description="Parses committee forms into a format that the committee solver can ingest."
     )
